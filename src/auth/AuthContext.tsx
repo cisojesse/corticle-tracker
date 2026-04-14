@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import bcrypt from 'bcryptjs';
+import { compare } from 'bcryptjs';
 import type { AuthSession } from '@/types';
 import { APP_USERS } from './users.config';
 
@@ -48,11 +48,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     );
 
     if (!user) {
-      await bcrypt.compare(password, '$2a$10$invalidhashpadding000000000000000000000000000000000000');
+      await compare(password, '$2a$10$invalidhashpadding000000000000000000000000000000000000');
       return { success: false, error: 'Invalid username or password' };
     }
 
-    const valid = await bcrypt.compare(password, user.passwordHash);
+    const valid = await compare(password, user.passwordHash);
     if (!valid) {
       return { success: false, error: 'Invalid username or password' };
     }

@@ -19,21 +19,21 @@ export const APP_USERS: (Omit<AppUser, 'passwordHash'> & { passwordHash: string 
     displayName: 'Jesse Whaley',
     role: 'admin',
     // Default password: ChangeMe123! — CHANGE THIS BEFORE USE
-    passwordHash: '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+    passwordHash: '$2b$10$RiUbuZkWaGh3rHj5vxCVreRuB5.SXsdikNXYSG6knxI9mpFGEs4.i',
   },
   {
     id: '2',
     username: 'alex',
     displayName: 'Alexander Zaft',
     role: 'admin',
-    passwordHash: '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+    passwordHash: '$2b$10$RiUbuZkWaGh3rHj5vxCVreRuB5.SXsdikNXYSG6knxI9mpFGEs4.i',
   },
   {
     id: '3',
     username: 'mac',
     displayName: 'Matt McKechnie',
     role: 'admin',
-    passwordHash: '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+    passwordHash: '$2b$10$RiUbuZkWaGh3rHj5vxCVreRuB5.SXsdikNXYSG6knxI9mpFGEs4.i',
   },
 ];
 

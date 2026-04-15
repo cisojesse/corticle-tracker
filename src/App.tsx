@@ -5,6 +5,7 @@ import { AppShell } from '@/components/layout/AppShell';
 import Dashboard from '@/views/Dashboard';
 import AllItems from '@/views/AllItems';
 import CategoryView from '@/views/CategoryView';
+import Companies from '@/views/Companies';
 import Admin from '@/views/Admin';
 import { useStorage } from '@/hooks/useStorage';
 import { useNotifications } from '@/hooks/useNotifications';
@@ -24,6 +25,7 @@ function AppContent() {
         <Route path="/" element={<Dashboard storage={storage} />} />
         <Route path="/items" element={<AllItems storage={storage} />} />
         <Route path="/category/:cat" element={<CategoryView storage={storage} />} />
+        <Route path="/companies" element={<Companies storage={storage} />} />
         <Route path="/admin" element={<Admin storage={storage} />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

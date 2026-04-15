@@ -51,7 +51,9 @@ export interface ActionItem {
   id: string;
   title: string;
   category: Category;
-  contact: string;
+  contact: string;              // free-text display fallback during migration
+  contactId: string | null;     // FK to Contact (preferred; use when set)
+  dealId: string | null;        // FK to Deal (optional link to pipeline)
   assignedTo: string;
   priority: Priority;
   status: Status;
@@ -79,7 +81,203 @@ export interface AppData {
   version: string;
   items: ActionItem[];
   users: AppUser[];
+  companies: Company[];
+  contacts: Contact[];
+  deals: Deal[];
+  activities: Activity[];
+  cadences: Cadence[];
+  rounds: Round[];
+  investorEngagements: InvestorEngagement[];
   lastSaved: string;
+}
+
+// -----------------------------------------------------------------------------
+// Phase 2a relational model
+// -----------------------------------------------------------------------------
+
+export type CompanyType =
+  | 'federal_agency'
+  | 'commercial'
+  | 'investor'
+  | 'partner'
+  | 'distributor'
+  | 'reseller';
+
+export const COMPANY_TYPE_LABELS: Record<CompanyType, string> = {
+  federal_agency: 'Federal Agency',
+  commercial: 'Commercial',
+  investor: 'Investor',
+  partner: 'Partner',
+  distributor: 'Distributor',
+  reseller: 'Reseller',
+};
+
+export type AgencyTier = 'cabinet' | 'dod' | 'civilian' | 'sub_agency';
+
+export interface Company {
+  id: string;
+  name: string;
+  type: CompanyType;
+  parentId: string | null;      // for agency sub-org nesting
+  website: string;
+  notes: string;
+  agencyCode: string | null;    // e.g. "DISA", "ARCYBER"
+  agencyTier: AgencyTier | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Contact {
+  id: string;
+  firstName: string;
+  lastName: string;
+  title: string;
+  email: string;
+  phone: string;
+  linkedInUrl: string;
+  companyId: string | null;
+  tags: string[];
+  source: string;
+  notes: string;
+  lastTouchedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type DealStage = 'lead' | 'pilot' | 'proposal' | 'close';
+export type DealType = 'SBIR' | 'OTA' | 'Direct' | 'GSA' | 'Other';
+
+export const DEAL_STAGE_LABELS: Record<DealStage, string> = {
+  lead: 'Lead',
+  pilot: 'Pilot',
+  proposal: 'Proposal',
+  close: 'Close',
+};
+
+export const DEAL_STAGE_ORDER: DealStage[] = ['lead', 'pilot', 'proposal', 'close'];
+
+/**
+ * A tracked opportunity. Always owned by a Corticle team member
+ * (ownerUserId → AppUser.id). Channel attribution lives on the Deal
+ * as optional distributor + reseller Company FKs.
+ */
+export interface Deal {
+  id: string;
+  name: string;
+  companyId: string;                    // FK to Company (end customer)
+  primaryContactId: string | null;      // FK to Contact
+  ownerUserId: string;                  // FK to AppUser — Corticle team only
+  stage: DealStage;
+  dealType: DealType;
+  contractVehicle: string;              // free-text fallback
+  dealSize: number;                     // USD
+  probability: number;                  // 0-100
+  expectedCloseDate: string;
+  // Channel
+  distributorCompanyId: string | null;  // FK to Company (type: distributor)
+  resellerCompanyId: string | null;     // FK to Company (type: reseller)
+  // Account playbook
+  playbookEntry: string;
+  playbookHook: string;
+  playbookPilot: string;
+  playbookExpansion: string;
+  notes: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type ActivityType = 'email' | 'call' | 'meeting' | 'linkedin' | 'note' | 'pilot_milestone';
+
+export const ACTIVITY_TYPE_LABELS: Record<ActivityType, string> = {
+  email: 'Email',
+  call: 'Call',
+  meeting: 'Meeting',
+  linkedin: 'LinkedIn',
+  note: 'Note',
+  pilot_milestone: 'Pilot milestone',
+};
+
+export interface Activity {
+  id: string;
+  type: ActivityType;
+  subject: string;
+  body: string;
+  contactId: string | null;
+  companyId: string | null;     // rollup
+  dealId: string | null;        // rollup
+  userId: string;               // who logged it (AppUser.id)
+  occurredAt: string;
+  createdAt: string;
+}
+
+export interface Cadence {
+  id: string;
+  contactId: string;
+  intervalDays: number;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// -----------------------------------------------------------------------------
+// Fundraising
+// -----------------------------------------------------------------------------
+
+export type RoundStatus = 'planning' | 'open' | 'closed';
+
+export interface Round {
+  id: string;
+  name: string;                 // "Seed 2026", "Series A"
+  targetAmount: number;
+  raisedAmount: number;
+  status: RoundStatus;
+  openedAt: string;
+  closedAt: string | null;
+  notes: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type InvestorStage =
+  | 'target'
+  | 'intro'
+  | 'pitch'
+  | 'diligence'
+  | 'term_sheet'
+  | 'committed'
+  | 'passed';
+
+export const INVESTOR_STAGE_LABELS: Record<InvestorStage, string> = {
+  target: 'Target',
+  intro: 'Intro',
+  pitch: 'Pitch',
+  diligence: 'Diligence',
+  term_sheet: 'Term Sheet',
+  committed: 'Committed',
+  passed: 'Passed',
+};
+
+export const INVESTOR_STAGE_ORDER: InvestorStage[] = [
+  'target', 'intro', 'pitch', 'diligence', 'term_sheet', 'committed', 'passed',
+];
+
+/**
+ * One investor firm's state in a specific fundraising round.
+ * Separate from Deal because investor lifecycle and stages differ.
+ */
+export interface InvestorEngagement {
+  id: string;
+  roundId: string;                      // FK to Round
+  investorCompanyId: string;            // FK to Company (type: 'investor')
+  primaryContactId: string | null;      // FK to Contact
+  ownerUserId: string;                  // FK to AppUser — Corticle team only
+  stage: InvestorStage;
+  checkSize: number;                    // USD offered/considered
+  isLead: boolean;
+  lastTouchedAt: string;
+  notes: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface AuthSession {

@@ -66,6 +66,8 @@ export function ActionItemModal({ item, onSave, onClose }: Props) {
       title: data.title!,
       category: data.category!,
       contact: data.contact!,
+      contactId: item?.contactId ?? null,
+      dealId: item?.dealId ?? null,
       assignedTo: data.assignedTo!,
       priority: data.priority!,
       status: data.status!,

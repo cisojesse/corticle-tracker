@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "2.0.0",
   "items": [
     {
       "id": "3df88095-e836-4adb-b4b3-00b2cff2df2e",
@@ -17,7 +17,9 @@
       "notified": false,
       "calendarDuration": null,
       "calendarInviteSent": false,
-      "calendarInviteSentAt": null
+      "calendarInviteSentAt": null,
+      "contactId": null,
+      "dealId": null
     },
     {
       "id": "c85e98df-fd69-4d1c-afa7-9dfb6934aac3",
@@ -35,7 +37,9 @@
       "notified": false,
       "calendarDuration": null,
       "calendarInviteSent": false,
-      "calendarInviteSentAt": null
+      "calendarInviteSentAt": null,
+      "contactId": null,
+      "dealId": null
     },
     {
       "id": "6d6a517e-ea82-429c-b69f-96e2d9533554",
@@ -53,7 +57,9 @@
       "notified": false,
       "calendarDuration": null,
       "calendarInviteSent": false,
-      "calendarInviteSentAt": null
+      "calendarInviteSentAt": null,
+      "contactId": null,
+      "dealId": null
     },
     {
       "id": "c52d3dbc-cbaa-4e5f-b8f4-ddaa65e4df39",
@@ -71,7 +77,9 @@
       "notified": false,
       "calendarDuration": null,
       "calendarInviteSent": false,
-      "calendarInviteSentAt": null
+      "calendarInviteSentAt": null,
+      "contactId": null,
+      "dealId": null
     },
     {
       "id": "40b52278-f73e-4c6e-b601-1fb19eb4d0d2",
@@ -89,7 +97,9 @@
       "notified": false,
       "calendarDuration": null,
       "calendarInviteSent": false,
-      "calendarInviteSentAt": null
+      "calendarInviteSentAt": null,
+      "contactId": null,
+      "dealId": null
     },
     {
       "id": "d50bac24-868b-49e8-9594-e6ee8c751ff7",
@@ -107,7 +117,9 @@
       "notified": false,
       "calendarDuration": null,
       "calendarInviteSent": false,
-      "calendarInviteSentAt": null
+      "calendarInviteSentAt": null,
+      "contactId": null,
+      "dealId": null
     },
     {
       "id": "5ec358ea-2715-4bcb-8ba0-879d33ac1e4b",
@@ -125,7 +137,9 @@
       "notified": false,
       "calendarDuration": null,
       "calendarInviteSent": false,
-      "calendarInviteSentAt": null
+      "calendarInviteSentAt": null,
+      "contactId": null,
+      "dealId": null
     },
     {
       "id": "bda20adf-43d9-4fcf-b0aa-4d4c8e58a6ee",
@@ -143,7 +157,9 @@
       "notified": false,
       "calendarDuration": null,
       "calendarInviteSent": false,
-      "calendarInviteSentAt": null
+      "calendarInviteSentAt": null,
+      "contactId": null,
+      "dealId": null
     },
     {
       "id": "ee80378a-4060-464c-8f83-71fd8b6e9746",
@@ -161,7 +177,9 @@
       "notified": false,
       "calendarDuration": null,
       "calendarInviteSent": false,
-      "calendarInviteSentAt": null
+      "calendarInviteSentAt": null,
+      "contactId": null,
+      "dealId": null
     },
     {
       "id": "a337eff3-1934-443b-b1a3-a23a4a11ace8",
@@ -179,7 +197,9 @@
       "notified": false,
       "calendarDuration": null,
       "calendarInviteSent": false,
-      "calendarInviteSentAt": null
+      "calendarInviteSentAt": null,
+      "contactId": null,
+      "dealId": null
     },
     {
       "id": "1510f6fb-b345-4cfb-9cc6-57b370ffa266",
@@ -197,7 +217,9 @@
       "notified": false,
       "calendarDuration": null,
       "calendarInviteSent": false,
-      "calendarInviteSentAt": null
+      "calendarInviteSentAt": null,
+      "contactId": null,
+      "dealId": null
     },
     {
       "id": "72bd5797-8846-4204-88ef-5563b2109e2c",
@@ -215,7 +237,9 @@
       "notified": false,
       "calendarDuration": null,
       "calendarInviteSent": false,
-      "calendarInviteSentAt": null
+      "calendarInviteSentAt": null,
+      "contactId": null,
+      "dealId": null
     },
     {
       "id": "fb4c1f7f-91e5-4e77-a6a9-5ccd976e79c0",
@@ -233,7 +257,9 @@
       "notified": false,
       "calendarDuration": null,
       "calendarInviteSent": false,
-      "calendarInviteSentAt": null
+      "calendarInviteSentAt": null,
+      "contactId": null,
+      "dealId": null
     },
     {
       "id": "76c1b84e-1f17-4f88-b952-3dafd3497776",
@@ -251,7 +277,9 @@
       "notified": false,
       "calendarDuration": null,
       "calendarInviteSent": false,
-      "calendarInviteSentAt": null
+      "calendarInviteSentAt": null,
+      "contactId": null,
+      "dealId": null
     },
     {
       "id": "85d8b040-0366-4d8f-b023-53168ac36770",
@@ -269,7 +297,9 @@
       "notified": false,
       "calendarDuration": null,
       "calendarInviteSent": false,
-      "calendarInviteSentAt": null
+      "calendarInviteSentAt": null,
+      "contactId": null,
+      "dealId": null
     },
     {
       "id": "6ac536c7-2858-4a2e-8b2e-703bd005e9f1",
@@ -287,7 +317,9 @@
       "notified": false,
       "calendarDuration": null,
       "calendarInviteSent": false,
-      "calendarInviteSentAt": null
+      "calendarInviteSentAt": null,
+      "contactId": null,
+      "dealId": null
     },
     {
       "id": "817a0360-d0da-4703-9669-8d207bde603d",
@@ -305,7 +337,9 @@
       "notified": false,
       "calendarDuration": null,
       "calendarInviteSent": false,
-      "calendarInviteSentAt": null
+      "calendarInviteSentAt": null,
+      "contactId": null,
+      "dealId": null
     },
     {
       "id": "03da373b-eaa9-4ae1-892b-3c49bfa55762",
@@ -323,7 +357,9 @@
       "notified": false,
       "calendarDuration": null,
       "calendarInviteSent": false,
-      "calendarInviteSentAt": null
+      "calendarInviteSentAt": null,
+      "contactId": null,
+      "dealId": null
     },
     {
       "id": "793ae6b3-fb38-4245-a152-94884de8bede",
@@ -341,7 +377,9 @@
       "notified": false,
       "calendarDuration": null,
       "calendarInviteSent": false,
-      "calendarInviteSentAt": null
+      "calendarInviteSentAt": null,
+      "contactId": null,
+      "dealId": null
     },
     {
       "id": "9b3c531b-96da-46c1-8605-dd77841f1d9e",
@@ -359,7 +397,9 @@
       "notified": false,
       "calendarDuration": null,
       "calendarInviteSent": false,
-      "calendarInviteSentAt": null
+      "calendarInviteSentAt": null,
+      "contactId": null,
+      "dealId": null
     },
     {
       "id": "68d19c4e-0e87-4258-9571-59c11808873f",
@@ -377,7 +417,9 @@
       "notified": false,
       "calendarDuration": 60,
       "calendarInviteSent": false,
-      "calendarInviteSentAt": null
+      "calendarInviteSentAt": null,
+      "contactId": null,
+      "dealId": null
     },
     {
       "id": "c4bd39df-c1e3-4694-ac01-c99cfd61fd5f",
@@ -395,7 +437,9 @@
       "notified": false,
       "calendarDuration": null,
       "calendarInviteSent": false,
-      "calendarInviteSentAt": null
+      "calendarInviteSentAt": null,
+      "contactId": null,
+      "dealId": null
     },
     {
       "id": "7583122c-69ce-4b2a-9191-a06d6f894a9c",
@@ -413,7 +457,9 @@
       "notified": false,
       "calendarDuration": 240,
       "calendarInviteSent": false,
-      "calendarInviteSentAt": null
+      "calendarInviteSentAt": null,
+      "contactId": null,
+      "dealId": null
     },
     {
       "id": "15c19dbe-a879-4c96-bbe0-56438bce9784",
@@ -431,7 +477,9 @@
       "notified": false,
       "calendarDuration": 60,
       "calendarInviteSent": false,
-      "calendarInviteSentAt": null
+      "calendarInviteSentAt": null,
+      "contactId": null,
+      "dealId": null
     },
     {
       "id": "fbf29284-497a-4a68-8e2f-ced6956dcdbd",
@@ -449,7 +497,9 @@
       "notified": false,
       "calendarDuration": null,
       "calendarInviteSent": false,
-      "calendarInviteSentAt": null
+      "calendarInviteSentAt": null,
+      "contactId": null,
+      "dealId": null
     },
     {
       "id": "96f20318-120d-4f31-9377-439199ba293f",
@@ -467,7 +517,9 @@
       "notified": false,
       "calendarDuration": null,
       "calendarInviteSent": false,
-      "calendarInviteSentAt": null
+      "calendarInviteSentAt": null,
+      "contactId": null,
+      "dealId": null
     },
     {
       "id": "62a79950-1738-41fe-bc23-8739c96292c5",
@@ -485,7 +537,9 @@
       "notified": false,
       "calendarDuration": null,
       "calendarInviteSent": false,
-      "calendarInviteSentAt": null
+      "calendarInviteSentAt": null,
+      "contactId": null,
+      "dealId": null
     },
     {
       "id": "f72a298f-f77f-47e1-abc3-42ff0a1bc344",
@@ -503,9 +557,18 @@
       "notified": false,
       "calendarDuration": 60,
       "calendarInviteSent": false,
-      "calendarInviteSentAt": null
+      "calendarInviteSentAt": null,
+      "contactId": null,
+      "dealId": null
     }
   ],
   "users": [],
+  "companies": [],
+  "contacts": [],
+  "deals": [],
+  "activities": [],
+  "cadences": [],
+  "rounds": [],
+  "investorEngagements": [],
   "lastSaved": "2026-04-15T12:00:00.000Z"
 }

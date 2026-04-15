@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef } from 'react';
-import type { AppData, ActionItem } from '@/types';
+import type { AppData, ActionItem, AppUser } from '@/types';
+import { cacheDataUsers } from '@/auth/AuthContext';
 
 const DATA_VERSION = '1.0.0';
 const AUTO_SAVE_DELAY_MS = 1500;
@@ -8,7 +9,21 @@ function createEmptyAppData(): AppData {
   return {
     version: DATA_VERSION,
     items: [],
+    users: [],
     lastSaved: new Date().toISOString(),
+  };
+}
+
+/**
+ * Normalizes loaded data — ensures newer fields exist even if loading
+ * an older data file (forward compatibility).
+ */
+function normalizeAppData(parsed: AppData): AppData {
+  return {
+    version: parsed.version ?? DATA_VERSION,
+    items: parsed.items ?? [],
+    users: parsed.users ?? [],
+    lastSaved: parsed.lastSaved ?? new Date().toISOString(),
   };
 }
 
@@ -24,7 +39,7 @@ export function useStorage() {
     const text = await file.text();
     const parsed = JSON.parse(text) as AppData;
     if (!parsed.items || !Array.isArray(parsed.items)) throw new Error('Invalid data format');
-    return parsed;
+    return normalizeAppData(parsed);
   }, []);
 
   const writeFile = useCallback(async (handle: FileSystemFileHandle, appData: AppData) => {
@@ -50,6 +65,7 @@ export function useStorage() {
       setFileHandle(handle);
       const loaded = await readFile(handle);
       setData(loaded);
+      cacheDataUsers(loaded.users);
       setSyncStatus('saved');
       setError(null);
     } catch (err) {
@@ -73,6 +89,7 @@ export function useStorage() {
       await writeFile(handle, fresh);
       setFileHandle(handle);
       setData(fresh);
+      cacheDataUsers(fresh.users);
       setSyncStatus('saved');
       setError(null);
     } catch (err) {
@@ -92,6 +109,7 @@ export function useStorage() {
     try {
       const updated = { ...newData, lastSaved: new Date().toISOString() };
       await writeFile(fileHandle, updated);
+      cacheDataUsers(updated.users);
       setSyncStatus('saved');
       setError(null);
     } catch {
@@ -132,6 +150,36 @@ export function useStorage() {
     });
   }, [scheduleSave]);
 
+  const addUser = useCallback((user: AppUser) => {
+    setData(prev => {
+      const updated = { ...prev, users: [...prev.users, user] };
+      scheduleSave(updated);
+      cacheDataUsers(updated.users);
+      return updated;
+    });
+  }, [scheduleSave]);
+
+  const updateUser = useCallback((user: AppUser) => {
+    setData(prev => {
+      const updated = {
+        ...prev,
+        users: prev.users.map(u => u.id === user.id ? user : u)
+      };
+      scheduleSave(updated);
+      cacheDataUsers(updated.users);
+      return updated;
+    });
+  }, [scheduleSave]);
+
+  const deleteUser = useCallback((id: string) => {
+    setData(prev => {
+      const updated = { ...prev, users: prev.users.filter(u => u.id !== id) };
+      scheduleSave(updated);
+      cacheDataUsers(updated.users);
+      return updated;
+    });
+  }, [scheduleSave]);
+
   return {
     data,
     syncStatus,
@@ -142,5 +190,8 @@ export function useStorage() {
     addItem,
     updateItem,
     deleteItem,
+    addUser,
+    updateUser,
+    deleteUser,
   };
 }

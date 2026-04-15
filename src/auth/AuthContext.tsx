@@ -1,9 +1,10 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { compareSync } from 'bcryptjs';
-import type { AuthSession } from '@/types';
+import type { AuthSession, AppUser } from '@/types';
 import { APP_USERS } from './users.config';
 
 const SESSION_KEY = 'corticle_session';
+const USERS_CACHE_KEY = 'corticle_users_cache';
 const SESSION_TIMEOUT_MS = 8 * 60 * 60 * 1000; // 8 hours
 
 interface AuthContextType {
@@ -14,6 +15,42 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
+
+/**
+ * Returns the merged user directory: bootstrap users from users.config.ts
+ * plus any users persisted to the data file (cached in localStorage).
+ * Data-file users override bootstrap users by username.
+ */
+function getMergedUsers(): AppUser[] {
+  let dataUsers: AppUser[] = [];
+  try {
+    const cached = localStorage.getItem(USERS_CACHE_KEY);
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      if (Array.isArray(parsed)) dataUsers = parsed;
+    }
+  } catch {
+    // ignore
+  }
+
+  const byUsername = new Map<string, AppUser>();
+  for (const u of APP_USERS) byUsername.set(u.username.toLowerCase(), u);
+  for (const u of dataUsers) byUsername.set(u.username.toLowerCase(), u);
+  return Array.from(byUsername.values());
+}
+
+/**
+ * Called by useStorage whenever the data file is loaded or saved.
+ * Writes the current user list to localStorage so login can see it
+ * before the data file is re-opened.
+ */
+export function cacheDataUsers(users: AppUser[] | undefined): void {
+  try {
+    localStorage.setItem(USERS_CACHE_KEY, JSON.stringify(users ?? []));
+  } catch {
+    // ignore quota errors
+  }
+}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<AuthSession | null>(null);
@@ -43,7 +80,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return { success: false, error: 'Username and password are required' };
     }
 
-    const user = APP_USERS.find(
+    const users = getMergedUsers();
+    const user = users.find(
       u => u.username.toLowerCase() === username.toLowerCase().trim()
     );
 

@@ -16,6 +16,7 @@ import {
   AlertCircle,
   Loader2,
   Cloud,
+  Users,
 } from 'lucide-react';
 
 interface Props {
@@ -44,6 +45,7 @@ export function AppShell({ storage, children }: Props) {
   const navItems = [
     { to: '/', label: 'Dashboard', icon: LayoutDashboard },
     { to: '/items', label: 'All Items', icon: ListTodo },
+    ...(session?.role === 'admin' ? [{ to: '/admin', label: 'Admin', icon: Users }] : []),
   ];
 
   function isActive(path: string) {

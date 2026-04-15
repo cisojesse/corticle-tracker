@@ -77,6 +77,7 @@ export interface AppUser {
 export interface AppData {
   version: string;
   items: ActionItem[];
+  users: AppUser[];
   lastSaved: string;
 }
 

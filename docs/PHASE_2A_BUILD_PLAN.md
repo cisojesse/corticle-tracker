@@ -132,11 +132,61 @@ interface Cadence {
   createdAt: string;
   updatedAt: string;
 }
+
+// Round = a Corticle fundraising round (Seed, Series A, etc.)
+interface Round {
+  id: string;
+  name: string;                       // "Seed 2026", "Series A"
+  targetAmount: number;
+  raisedAmount: number;
+  status: 'planning' | 'open' | 'closed';
+  openedAt: string;
+  closedAt: string | null;
+  notes: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// InvestorEngagement = one investor firm's state in a specific Round.
+// Separate from Deal because investor relationships span multiple rounds
+// and have a different lifecycle (target → intro → pitch → diligence → TS → committed).
+interface InvestorEngagement {
+  id: string;
+  roundId: string;                    // FK to Round
+  investorCompanyId: string;          // FK to Company (type: 'investor')
+  primaryContactId: string | null;    // FK to Contact — the partner
+  ownerUserId: string;                // who at Corticle is driving it
+  stage: InvestorStage;
+  checkSize: number;                  // USD they're offering / considering
+  isLead: boolean;
+  lastTouchedAt: string;
+  notes: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+type InvestorStage =
+  | 'target'          // haven't engaged yet
+  | 'intro'           // warm intro in progress
+  | 'pitch'           // pitch meeting scheduled/done
+  | 'diligence'       // they're digging in
+  | 'term_sheet'      // term sheet in hand
+  | 'committed'       // wired
+  | 'passed';
 ```
 
 ### Extended existing entities
 
 ```typescript
+interface AppUser {
+  id: string;
+  username: string;
+  displayName: string;
+  role: 'admin' | 'member';
+  passwordHash: string;
+  email: string;                      // NEW — required; used for calendar ATTENDEE + password reset
+}
+
 interface ActionItem {
   // ... existing fields stay ...
   contact: string;                    // keep as display fallback during migration
@@ -154,6 +204,8 @@ interface AppData {
   deals: Deal[];
   activities: Activity[];
   cadences: Cadence[];
+  rounds: Round[];
+  investorEngagements: InvestorEngagement[];
   lastSaved: string;
 }
 ```
@@ -165,20 +217,26 @@ Old files (v1.0.0) should auto-upgrade on load: missing arrays default to `[]`, 
 
 ## 2. Sprint plan
 
-### Sprint 1 — Relational foundation (~4 days)
-Goal: replace free-text `contact` with real entities. Backfill the 28 seed items. Ship the Federal pipeline Kanban.
+### Sprint 1 — Relational foundation (~5 days, sub-deploy after each deliverable)
+Goal: replace free-text `contact` with real entities. Backfill the 28 seed items. Ship the Federal pipeline Kanban + investor pipeline.
 
 | # | Deliverable | Files touched | Est |
 |---|---|---|---|
-| 1.1 | Data model + storage CRUD | `types/index.ts`, `hooks/useStorage.ts` | 0.5d |
+| 1.0 | Add `AppUser.email` (required) + email in calendar ATTENDEE + admin reset button | `types/index.ts`, `components/admin/UserModal.tsx`, `views/Admin.tsx`, `utils/calendarHelpers.ts` | 0.5d |
+| 1.1 | Data model + storage CRUD (all new entities) | `types/index.ts`, `hooks/useStorage.ts` | 0.5d |
 | 1.2 | Companies view + CRUD + agency hierarchy | `views/Companies.tsx`, `components/companies/*` | 1d |
 | 1.3 | Contacts view + CRUD + company picker | `views/Contacts.tsx`, `components/contacts/*` | 1d |
-| 1.4 | Backfill tool: map existing ActionItems to Contacts | `views/Backfill.tsx` (admin-only) | 0.5d |
+| 1.4 | Backfill tool: map existing ActionItems to Contacts (bulk page) | `views/Backfill.tsx` (admin-only) | 0.5d |
 | 1.5 | Deals + Kanban pipeline + federal fields | `views/Pipeline.tsx`, `components/deals/*` | 1d |
+| 1.6 | Rounds + Investor pipeline (separate Kanban) | `views/Fundraising.tsx`, `components/investors/*` | 0.5d |
+
+**Deploy gate:** each deliverable gets committed, pushed, and GitHub Pages auto-deploys. Review live before next deliverable starts.
 
 **Ship criteria:**
+- Every User has an email; calendar .ics invites include ATTENDEE lines
 - All 28 seed items have a `contactId` or an explicit "skip" flag
 - Federal pipeline view shows 4 Kanban columns (Lead / Pilot / Proposal / Close)
+- Investor pipeline view shows investor stages per active Round
 - Deal Type, Contract Vehicle, Dollar Size, Probability all editable on a Deal
 
 ### Sprint 2 — Workflow depth (~3.5 days)
@@ -235,20 +293,29 @@ Goal: close the loop on Federal GTM specifics; make seed imports first-class.
 6. **Bcrypt still client-side** — matches current auth model. Revisit at Supabase migration.
 7. **Deal ownership is always internal Corticle (ANSWER — Q1)** — `Deal.ownerUserId` is always an AppUser (Jesse, Alex, Mac, future team). Never assigned to a reseller or distributor.
 8. **Channel model is two-tier: Distributor + Reseller (ANSWER — Q1/Q3)** — every Deal can optionally reference one `distributorCompanyId` (Carahsoft today) AND one `resellerCompanyId` (any VAR in the distributor's ecosystem). `CompanyType` includes both `'distributor'` and `'reseller'` as distinct categories.
+9. **Investors get their own entities (ANSWER — new Q1)** — `Round` (a Corticle fundraising round) + `InvestorEngagement` (a firm's state in a specific round). Investor firms still use `Company` with `type: 'investor'`; their partners use `Contact`. Separate pipeline from Deals because lifecycle + stages differ.
+10. **AppUser requires email (NEW from Jesse)** — used for calendar .ics ATTENDEE + future password reset.
+11. **Password reset in Phase 2a = admin-triggered temp password** — full email-based self-serve reset deferred to Phase 2b (Supabase Auth). Magic-link via serverless is a middle option if needed earlier.
+12. **Default assignment on new ActionItems stays "whoever's logged in"** — user can pick blank/none explicitly (ANSWER — Q4).
+13. **Sub-deploy each Sprint 1 deliverable (ANSWER — Q3)** — commit + push per deliverable; review live before moving to next.
 
 ---
 
 ## 5. Open questions for Jesse
 
 **Resolved:**
-- ~~Q1 Pipeline ownership~~ → Deal.ownerUserId is always a Corticle team member. Channel tracked separately as distributor + reseller FKs on Deal.
-- ~~Q3 Channel Partner category~~ → Split into two distinct `CompanyType`s: `distributor` (Carahsoft today) and `reseller` (any VAR in the distributor ecosystem).
+- ~~Q1 Deal ownership~~ → Deal.ownerUserId is always a Corticle team member.
+- ~~Q3 Channel Partner category~~ → Distributor + Reseller as distinct `CompanyType`s.
+- ~~Q (new) Investor deals~~ → Own entities: `Round` + `InvestorEngagement`.
+- ~~Q Backfill UX~~ → Bulk page with parser-suggested splits, "accept all" button (tentative; open to override if Jesse prefers wizard).
+- ~~Q Execution order~~ → Sub-deploy per deliverable.
+- ~~Q Default assignee~~ → Default to current user, pickable blank.
 
-**Still open:**
-1. **Investor deals** — should fundraising rounds live in `Deal` with `dealType: 'Direct'` and a flag, or do investors get their own entity? (Recommendation: reuse Deal — a check is a check.)
-2. **Backfill UX preference** — bulk review screen (all 28 items on one page with inline matchers), or one-at-a-time wizard?
-3. **Execution order** — ship Sprint 1 in one big push, or sub-deploy after each deliverable (1.1, 1.2, etc)? Sub-deploy gives faster review but more busywork.
-4. **Who besides Jesse assigns work?** — Alex and Mac are admins but not shown as owners in the seed. Should we assign some ARCYBER/NETCOM items to them by default, or keep all Jesse and reassign later?
+**New / pending:**
+1. **Backfill UX** — confirmed bulk page direction, OR want wizard anyway? (Recommendation stands: bulk.)
+2. **Password reset path** — OK with "admin resets to temp password" for Phase 2a, full email-reset deferred to Phase 2b Supabase migration?
+3. **When to ship Deliverable 1.0 (User.email)** — immediately now as a micro-deploy before Sprint 1 starts, or fold into 1.1?
+4. **Migrating existing 3 bootstrap users** — they currently have no email. Options: (a) add my/alex/mac emails directly in `users.config.ts`, or (b) force admin to set them via UI on first login after 1.0 ships.
 
 ---
 

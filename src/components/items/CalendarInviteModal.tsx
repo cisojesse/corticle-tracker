@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { ActionItem } from '@/types';
 import { DURATION_OPTIONS } from '@/types';
+import { useAuth } from '@/auth/AuthContext';
 import { generateICS, downloadICS, generateGoogleCalendarURL } from '@/utils/calendarHelpers';
 import { format, parseISO } from 'date-fns';
 
@@ -13,12 +14,19 @@ interface Props {
 type CalendarType = 'outlook' | 'google';
 
 export function CalendarInviteModal({ item, onClose, onInviteSent }: Props) {
+  const { session } = useAuth();
   const [calendarType, setCalendarType] = useState<CalendarType>('outlook');
   const [duration, setDuration] = useState<number>(60);
   const [sent, setSent] = useState(false);
 
   function handleSend() {
-    const opts = { item, durationMinutes: duration, calendarType };
+    const opts = {
+      item,
+      durationMinutes: duration,
+      calendarType,
+      organizerEmail: session?.email || undefined,
+      organizerName: session?.displayName || undefined,
+    };
 
     if (calendarType === 'google') {
       const url = generateGoogleCalendarURL(opts);

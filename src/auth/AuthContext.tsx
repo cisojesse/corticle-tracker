@@ -106,6 +106,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       username: user.username,
       displayName: user.displayName,
       role: user.role,
+      email: user.email ?? '',
       loginTime: new Date().toISOString(),
     };
 

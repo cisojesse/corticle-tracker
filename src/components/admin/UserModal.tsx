@@ -17,6 +17,7 @@ export function UserModal({ user, existingUsernames, onSave, onClose }: Props) {
 
   const [username, setUsername] = useState(user?.username ?? '');
   const [displayName, setDisplayName] = useState(user?.displayName ?? '');
+  const [email, setEmail] = useState(user?.email ?? '');
   const [role, setRole] = useState<'admin' | 'member'>(user?.role ?? 'member');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
@@ -44,6 +45,13 @@ export function UserModal({ user, existingUsernames, onSave, onClose }: Props) {
 
     if (!sanitizeShortText(displayName)) {
       errs.displayName = 'Display name is required';
+    }
+
+    const cleanEmail = sanitizeShortText(email);
+    if (!cleanEmail) {
+      errs.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+      errs.email = 'Enter a valid email address';
     }
 
     // Password required on create, optional on edit
@@ -86,6 +94,7 @@ export function UserModal({ user, existingUsernames, onSave, onClose }: Props) {
       id: user?.id ?? uuidv4(),
       username: cleanUsername,
       displayName: cleanDisplayName,
+      email: sanitizeShortText(email).toLowerCase(),
       role,
       passwordHash,
     };
@@ -146,6 +155,25 @@ export function UserModal({ user, existingUsernames, onSave, onClose }: Props) {
               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-corticle-cyan focus:border-transparent"
             />
             {errors.displayName && <p className="text-xs text-red-500 mt-1">{errors.displayName}</p>}
+          </div>
+
+          <div>
+            <label htmlFor="user-email" className="block text-sm font-medium text-gray-700 mb-1">
+              Email *
+            </label>
+            <input
+              id="user-email"
+              type="email"
+              autoComplete="email"
+              autoCapitalize="off"
+              autoCorrect="off"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-corticle-cyan focus:border-transparent"
+              placeholder="user@corticle.io"
+            />
+            {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
+            <p className="text-xs text-gray-400 mt-1">Used for calendar invites and password reset delivery.</p>
           </div>
 
           <div>

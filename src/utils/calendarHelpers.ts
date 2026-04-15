@@ -31,11 +31,12 @@ export interface CalendarInviteOptions {
   durationMinutes: number;
   calendarType: 'outlook' | 'google';
   organizerEmail?: string;
+  organizerName?: string;
   attendeeEmails?: string[];
 }
 
 export function generateICS(opts: CalendarInviteOptions): Blob {
-  const { item, durationMinutes } = opts;
+  const { item, durationMinutes, organizerEmail, organizerName, attendeeEmails } = opts;
 
   const dueDate = parseISO(item.dueDate);
   const startDate = setMinutes(setHours(dueDate, 9), 0);
@@ -61,7 +62,7 @@ export function generateICS(opts: CalendarInviteOptions): Blob {
       .join('\\n')
   );
 
-  const lines = [
+  const lines: string[] = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
     'PRODID:-//Corticle Inc//Ops Tracker//EN',
@@ -74,6 +75,20 @@ export function generateICS(opts: CalendarInviteOptions): Blob {
     `DTEND:${dtEnd}`,
     foldLine(`SUMMARY:${summary}`),
     foldLine(`DESCRIPTION:${description}`),
+  ];
+
+  if (organizerEmail) {
+    const cn = organizerName ? `;CN="${escapeICS(organizerName)}"` : '';
+    lines.push(foldLine(`ORGANIZER${cn}:mailto:${organizerEmail}`));
+  }
+
+  if (attendeeEmails && attendeeEmails.length > 0) {
+    for (const attendee of attendeeEmails) {
+      lines.push(foldLine(`ATTENDEE;RSVP=TRUE;ROLE=REQ-PARTICIPANT:mailto:${attendee}`));
+    }
+  }
+
+  lines.push(
     'STATUS:CONFIRMED',
     'TRANSP:OPAQUE',
     'BEGIN:VALARM',
@@ -83,7 +98,7 @@ export function generateICS(opts: CalendarInviteOptions): Blob {
     'END:VALARM',
     'END:VEVENT',
     'END:VCALENDAR',
-  ];
+  );
 
   return new Blob([lines.join('\r\n')], { type: 'text/calendar;charset=utf-8' });
 }

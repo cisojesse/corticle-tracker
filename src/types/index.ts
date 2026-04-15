@@ -72,6 +72,7 @@ export interface AppUser {
   displayName: string;
   role: 'admin' | 'member';
   passwordHash: string;
+  email: string;
 }
 
 export interface AppData {
@@ -86,6 +87,7 @@ export interface AuthSession {
   username: string;
   displayName: string;
   role: 'admin' | 'member';
+  email: string;
   loginTime: string;
 }
 

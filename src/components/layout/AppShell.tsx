@@ -18,6 +18,7 @@ import {
   Cloud,
   Users,
   Building2,
+  UserSquare,
 } from 'lucide-react';
 
 interface Props {
@@ -47,6 +48,7 @@ export function AppShell({ storage, children }: Props) {
     { to: '/', label: 'Dashboard', icon: LayoutDashboard },
     { to: '/items', label: 'All Items', icon: ListTodo },
     { to: '/companies', label: 'Companies', icon: Building2 },
+    { to: '/contacts', label: 'Contacts', icon: UserSquare },
     ...(session?.role === 'admin' ? [{ to: '/admin', label: 'Admin', icon: Users }] : []),
   ];
 

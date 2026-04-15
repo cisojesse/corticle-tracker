@@ -40,7 +40,7 @@
 interface Company {
   id: string;
   name: string;                       // "ARCYBER", "Sequoia Capital"
-  type: 'federal_agency' | 'commercial' | 'investor' | 'partner' | 'reseller';
+  type: CompanyType;
   parentId: string | null;            // for agency sub-orgs
   website: string;
   notes: string;
@@ -50,6 +50,14 @@ interface Company {
   createdAt: string;
   updatedAt: string;
 }
+
+type CompanyType =
+  | 'federal_agency'    // the end customer (ARCYBER, DISA, VA...)
+  | 'commercial'        // non-federal end customer
+  | 'investor'          // VC, angel, etc.
+  | 'partner'           // technology / integration partner (non-channel)
+  | 'distributor'       // channel tier 1 (Carahsoft today; could add more)
+  | 'reseller';         // channel tier 2 / VAR (anyone in Carahsoft's ecosystem)
 
 // Contact = an individual person we talk to
 interface Contact {
@@ -70,22 +78,24 @@ interface Contact {
   updatedAt: string;
 }
 
-// Deal = a tracked opportunity tied to a Company
+// Deal = a tracked opportunity tied to an end-customer Company.
+// Always owned by Corticle (Deal.ownerUserId → AppUser).
+// Channel attribution is modeled as distributor + reseller on the Deal.
 interface Deal {
   id: string;
   name: string;                       // "ARCYBER SBIR Phase II"
-  companyId: string;                  // FK to Company (required)
+  companyId: string;                  // FK to Company — the END CUSTOMER
   primaryContactId: string | null;    // FK to Contact
-  owner: string;                      // display name of assignee
+  ownerUserId: string;                // FK to AppUser.id — ALWAYS a Corticle team member
   stage: DealStage;
   dealType: DealType;
-  contractVehicle: string;            // free-text fallback for edge cases
+  contractVehicle: string;            // free-text fallback
   dealSize: number;                   // USD
   probability: number;                // 0-100
   expectedCloseDate: string;
-  // Federal-specific
-  carahsoftSourced: boolean;          // channel attribution
-  resellerPartnerId: string | null;   // FK to Company (type: reseller)
+  // Channel attribution (replaces ad-hoc "carahsoftSourced" flag)
+  distributorCompanyId: string | null;  // FK to Company (type: distributor)
+  resellerCompanyId: string | null;     // FK to Company (type: reseller)
   // Playbook
   playbookEntry: string;              // "SBIR Phase II (DCO automation)"
   playbookHook: string;               // "Reduce incident response time by 70%"
@@ -193,12 +203,13 @@ Goal: close the loop on Federal GTM specifics; make seed imports first-class.
 | 3.1 | Seed merge UI (Admin → Import seed JSON) | `views/Admin.tsx`, `utils/seedMerge.ts` | 1d |
 | 3.2 | Account playbook template editor on Company detail | `views/Company.tsx` | 0.5d |
 | 3.3 | Weekly pipeline review dashboard (Monday-view) | `views/PipelineReview.tsx` | 1d |
-| 3.4 | Carahsoft attribution report | within `views/Reports.tsx` | 0.5d |
+| 3.4 | Channel attribution report (by distributor + reseller) | within `views/Reports.tsx` | 0.5d |
 
 **Ship criteria:**
 - Can import `seeds/federal-gtm-seed.json` through the UI without clobbering existing data
 - Company detail shows Entry / Hook / Pilot / Expansion playbook fields
 - Monday pipeline view: deals advanced this week, stalled deals, overdue cadences
+- Channel report: $ pipeline and $ closed by distributor, by reseller
 
 ---
 
@@ -222,17 +233,22 @@ Goal: close the loop on Federal GTM specifics; make seed imports first-class.
 4. **Pipeline stages are fixed at Lead / Pilot / Proposal / Close** for Phase 2a — matches the Federal GTM doc. Configurable stages deferred to Phase 2b.
 5. **Account playbook lives on Company, not Deal** — one playbook per target account; multiple Deals can inherit from it.
 6. **Bcrypt still client-side** — matches current auth model. Revisit at Supabase migration.
+7. **Deal ownership is always internal Corticle (ANSWER — Q1)** — `Deal.ownerUserId` is always an AppUser (Jesse, Alex, Mac, future team). Never assigned to a reseller or distributor.
+8. **Channel model is two-tier: Distributor + Reseller (ANSWER — Q1/Q3)** — every Deal can optionally reference one `distributorCompanyId` (Carahsoft today) AND one `resellerCompanyId` (any VAR in the distributor's ecosystem). `CompanyType` includes both `'distributor'` and `'reseller'` as distinct categories.
 
 ---
 
 ## 5. Open questions for Jesse
 
-1. **Pipeline ownership** — who owns a Deal if the company is in the BD category but the deal was sourced by Carahsoft? Deal.owner (you) or Deal.resellerPartnerId (Carahsoft)?
-2. **Investor deals** — should fundraising rounds live in `Deal` with `dealType: 'Direct'` and a flag, or do investors get their own entity? (Recommendation: reuse Deal — a check is a check.)
-3. **Do we need a "Channel Partner" category on Company?** — distinct from `'reseller'`? Today Carahsoft = reseller, but prime contractors behave differently.
-4. **Backfill UX preference** — bulk review screen (all 28 items on one page with inline matchers), or one-at-a-time wizard?
-5. **Execution order** — do you want to ship Sprint 1 in one big push, or sub-deploy after each deliverable (1.1, 1.2, etc)? Sub-deploy gives faster review but more busywork.
-6. **Who besides Jesse assigns work?** — Alex and Mac are admins but not shown as owners in the seed. Should we assign some ARCYBER/NETCOM items to them by default, or keep all Jesse and reassign later?
+**Resolved:**
+- ~~Q1 Pipeline ownership~~ → Deal.ownerUserId is always a Corticle team member. Channel tracked separately as distributor + reseller FKs on Deal.
+- ~~Q3 Channel Partner category~~ → Split into two distinct `CompanyType`s: `distributor` (Carahsoft today) and `reseller` (any VAR in the distributor ecosystem).
+
+**Still open:**
+1. **Investor deals** — should fundraising rounds live in `Deal` with `dealType: 'Direct'` and a flag, or do investors get their own entity? (Recommendation: reuse Deal — a check is a check.)
+2. **Backfill UX preference** — bulk review screen (all 28 items on one page with inline matchers), or one-at-a-time wizard?
+3. **Execution order** — ship Sprint 1 in one big push, or sub-deploy after each deliverable (1.1, 1.2, etc)? Sub-deploy gives faster review but more busywork.
+4. **Who besides Jesse assigns work?** — Alex and Mac are admins but not shown as owners in the seed. Should we assign some ARCYBER/NETCOM items to them by default, or keep all Jesse and reassign later?
 
 ---
 

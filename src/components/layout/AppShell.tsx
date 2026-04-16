@@ -20,6 +20,7 @@ import {
   Building2,
   UserSquare,
   Wand2,
+  Kanban,
 } from 'lucide-react';
 
 interface Props {
@@ -50,6 +51,7 @@ export function AppShell({ storage, children }: Props) {
     { to: '/items', label: 'All Items', icon: ListTodo },
     { to: '/companies', label: 'Companies', icon: Building2 },
     { to: '/contacts', label: 'Contacts', icon: UserSquare },
+    { to: '/pipeline', label: 'Pipeline', icon: Kanban },
     ...(session?.role === 'admin'
       ? [
           { to: '/admin', label: 'Admin', icon: Users },

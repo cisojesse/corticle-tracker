@@ -1,12 +1,13 @@
 import type { ActionItem } from '@/types';
 import { isOverdue, isDueSoon } from '@/utils/dateHelpers';
-import { ListTodo, AlertTriangle, Clock, CheckCircle } from 'lucide-react';
+import { ListTodo, AlertTriangle, Clock, CheckCircle, RefreshCw } from 'lucide-react';
 
 interface Props {
   items: ActionItem[];
+  cadenceOverdueCount?: number;
 }
 
-export function DashboardStats({ items }: Props) {
+export function DashboardStats({ items, cadenceOverdueCount = 0 }: Props) {
   const total = items.length;
   const overdueCount = items.filter(i => i.status !== 'done' && isOverdue(i.dueDate)).length;
   const dueSoonCount = items.filter(i => i.status !== 'done' && isDueSoon(i.dueDate)).length;
@@ -14,13 +15,14 @@ export function DashboardStats({ items }: Props) {
 
   const stats = [
     { label: 'Total Items', value: total, icon: ListTodo, color: 'text-corticle-cyan', bg: 'bg-cyan-50' },
+    { label: 'Needs Touch', value: cadenceOverdueCount, icon: RefreshCw, color: 'text-orange-500', bg: 'bg-orange-50' },
     { label: 'Overdue', value: overdueCount, icon: AlertTriangle, color: 'text-red-500', bg: 'bg-red-50' },
     { label: 'Due Soon', value: dueSoonCount, icon: Clock, color: 'text-yellow-500', bg: 'bg-yellow-50' },
     { label: 'Completed', value: doneCount, icon: CheckCircle, color: 'text-green-500', bg: 'bg-green-50' },
   ];
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
       {stats.map(stat => (
         <div
           key={stat.label}

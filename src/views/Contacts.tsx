@@ -1,8 +1,9 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import type { Contact } from '@/types';
 import type { useStorage } from '@/hooks/useStorage';
 import { ContactModal } from '@/components/contacts/ContactModal';
-import { formatDueDate } from '@/utils/dateHelpers';
+import { formatDueDate, nowISO } from '@/utils/dateHelpers';
 import { Plus, Pencil, Trash2, User, Mail, ExternalLink } from 'lucide-react';
 
 interface Props {
@@ -23,10 +24,41 @@ export default function Contacts({ storage }: Props) {
 
   const fileRequired = storage.syncStatus === 'no_file';
 
+  const cadences = storage.data.cadences;
+
   const companyById = useMemo(
     () => new Map(companies.map(c => [c.id, c])),
     [companies],
   );
+
+  const cadenceByContactId = useMemo(
+    () => new Map(cadences.filter(c => c.active).map(c => [c.contactId, c])),
+    [cadences],
+  );
+
+  const handleCadenceChange = useCallback((contactId: string, intervalDays: number) => {
+    const existing = cadences.find(c => c.contactId === contactId);
+    const now = nowISO();
+    if (intervalDays === 0) {
+      // Remove cadence (deactivate)
+      if (existing && existing.active) {
+        storage.updateCadence({ ...existing, active: false, updatedAt: now });
+      }
+    } else if (existing) {
+      // Update
+      storage.updateCadence({ ...existing, intervalDays, active: true, updatedAt: now });
+    } else {
+      // Create
+      storage.addCadence({
+        id: uuidv4(),
+        contactId,
+        intervalDays,
+        active: true,
+        createdAt: now,
+        updatedAt: now,
+      });
+    }
+  }, [cadences, storage]);
 
   const filtered = useMemo(() => {
     let result = [...contacts];
@@ -232,10 +264,12 @@ export default function Contacts({ storage }: Props) {
         <ContactModal
           contact={modalContact}
           companies={companies}
+          cadence={modalContact ? cadenceByContactId.get(modalContact.id) ?? null : null}
           onSave={c => {
             if (contacts.find(x => x.id === c.id)) storage.updateContact(c);
             else storage.addContact(c);
           }}
+          onCadenceChange={handleCadenceChange}
           onClose={() => setModalContact(undefined)}
         />
       )}

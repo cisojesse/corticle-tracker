@@ -1,15 +1,27 @@
 import { useState, useEffect, useMemo } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import type { Contact, Company } from '@/types';
+import type { Contact, Company, Cadence } from '@/types';
 import { COMPANY_TYPE_LABELS } from '@/types';
 import { sanitizeShortText, sanitizeText } from '@/utils/sanitize';
 import { nowISO } from '@/utils/dateHelpers';
 import { X } from 'lucide-react';
 
+const CADENCE_OPTIONS = [
+  { label: 'None', value: 0 },
+  { label: 'Weekly (7 days)', value: 7 },
+  { label: 'Bi-weekly (14 days)', value: 14 },
+  { label: 'Monthly (30 days)', value: 30 },
+  { label: 'Quarterly (90 days)', value: 90 },
+];
+
 interface Props {
   contact?: Contact | null;
   companies: Company[];
+  /** Active cadence for this contact, if any */
+  cadence?: Cadence | null;
   onSave: (contact: Contact) => void;
+  /** Called with intervalDays (0 = remove cadence) after contact save */
+  onCadenceChange?: (contactId: string, intervalDays: number) => void;
   onClose: () => void;
 }
 
@@ -23,7 +35,7 @@ const SOURCE_SUGGESTIONS = [
   'existing-customer',
 ];
 
-export function ContactModal({ contact, companies, onSave, onClose }: Props) {
+export function ContactModal({ contact, companies, cadence, onSave, onCadenceChange, onClose }: Props) {
   const isEdit = !!contact;
 
   const [firstName, setFirstName] = useState(contact?.firstName ?? '');
@@ -36,6 +48,7 @@ export function ContactModal({ contact, companies, onSave, onClose }: Props) {
   const [tagsInput, setTagsInput] = useState(contact?.tags?.join(', ') ?? '');
   const [source, setSource] = useState(contact?.source ?? '');
   const [notes, setNotes] = useState(contact?.notes ?? '');
+  const [cadenceInterval, setCadenceInterval] = useState(cadence?.intervalDays ?? 0);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -98,6 +111,9 @@ export function ContactModal({ contact, companies, onSave, onClose }: Props) {
       updatedAt: now,
     };
     onSave(saved);
+    if (onCadenceChange) {
+      onCadenceChange(saved.id, cadenceInterval);
+    }
     onClose();
   }
 
@@ -266,6 +282,25 @@ export function ContactModal({ contact, companies, onSave, onClose }: Props) {
                 placeholder="technical-buyer, board-member"
               />
             </div>
+          </div>
+
+          <div>
+            <label htmlFor="c-cadence" className="block text-sm font-medium text-gray-700 mb-1">
+              Touch cadence
+            </label>
+            <select
+              id="c-cadence"
+              value={cadenceInterval}
+              onChange={e => setCadenceInterval(Number(e.target.value))}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-corticle-cyan"
+            >
+              {CADENCE_OPTIONS.map(opt => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+            <p className="text-xs text-gray-400 mt-1">
+              How often this contact should be touched. Overdue reminders appear on the Dashboard.
+            </p>
           </div>
 
           <div>

@@ -22,6 +22,7 @@ import {
   Wand2,
   Kanban,
   TrendingUp,
+  ClipboardList,
 } from 'lucide-react';
 
 interface Props {
@@ -54,6 +55,7 @@ export function AppShell({ storage, children }: Props) {
     { to: '/contacts', label: 'Contacts', icon: UserSquare },
     { to: '/pipeline', label: 'Pipeline', icon: Kanban },
     { to: '/fundraising', label: 'Fundraising', icon: TrendingUp },
+    { to: '/activities', label: 'Activities', icon: ClipboardList },
     ...(session?.role === 'admin'
       ? [
           { to: '/admin', label: 'Admin', icon: Users },

@@ -10,6 +10,7 @@ import Contacts from '@/views/Contacts';
 import Admin from '@/views/Admin';
 import Backfill from '@/views/Backfill';
 import Pipeline from '@/views/Pipeline';
+import Fundraising from '@/views/Fundraising';
 import { useStorage } from '@/hooks/useStorage';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useEffect } from 'react';
@@ -31,6 +32,7 @@ function AppContent() {
         <Route path="/companies" element={<Companies storage={storage} />} />
         <Route path="/contacts" element={<Contacts storage={storage} />} />
         <Route path="/pipeline" element={<Pipeline storage={storage} />} />
+        <Route path="/fundraising" element={<Fundraising storage={storage} />} />
         <Route path="/admin" element={<Admin storage={storage} />} />
         <Route path="/backfill" element={<Backfill storage={storage} />} />
         <Route path="*" element={<Navigate to="/" replace />} />

@@ -21,6 +21,7 @@ import {
   UserSquare,
   Wand2,
   Kanban,
+  TrendingUp,
 } from 'lucide-react';
 
 interface Props {
@@ -52,6 +53,7 @@ export function AppShell({ storage, children }: Props) {
     { to: '/companies', label: 'Companies', icon: Building2 },
     { to: '/contacts', label: 'Contacts', icon: UserSquare },
     { to: '/pipeline', label: 'Pipeline', icon: Kanban },
+    { to: '/fundraising', label: 'Fundraising', icon: TrendingUp },
     ...(session?.role === 'admin'
       ? [
           { to: '/admin', label: 'Admin', icon: Users },

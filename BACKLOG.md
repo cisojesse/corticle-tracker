@@ -22,6 +22,9 @@ Phase 2a additions specifically needed to operationalize the federal GTM playboo
 - [x] Research doc shipped: `docs/WORKFLOW_RESEARCH.md` (2026-04-15)
 - [ ] Decision needed: prioritize Phase 2a items from research doc
 
+## Auth
+- [ ] Migrate primary auth identifier from username to email — enables Microsoft Entra ID / SSO integration and aligns with email-based account model
+
 ## Future (Phase 2 Roadmap)
 - [ ] Microsoft Entra ID SSO
 - [ ] Outlook Calendar API (replace .ics with Graph API)

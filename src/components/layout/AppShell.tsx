@@ -19,6 +19,7 @@ import {
   Users,
   Building2,
   UserSquare,
+  Wand2,
 } from 'lucide-react';
 
 interface Props {
@@ -49,7 +50,12 @@ export function AppShell({ storage, children }: Props) {
     { to: '/items', label: 'All Items', icon: ListTodo },
     { to: '/companies', label: 'Companies', icon: Building2 },
     { to: '/contacts', label: 'Contacts', icon: UserSquare },
-    ...(session?.role === 'admin' ? [{ to: '/admin', label: 'Admin', icon: Users }] : []),
+    ...(session?.role === 'admin'
+      ? [
+          { to: '/admin', label: 'Admin', icon: Users },
+          { to: '/backfill', label: 'Backfill', icon: Wand2 },
+        ]
+      : []),
   ];
 
   function isActive(path: string) {

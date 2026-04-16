@@ -48,6 +48,7 @@ export function ActivityModal({
       : toISODate(new Date()),
   );
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     function handleEsc(e: KeyboardEvent) {
@@ -101,11 +102,13 @@ export function ActivityModal({
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (submitting) return;
     const errs = validate();
     if (Object.keys(errs).length > 0) {
       setErrors(errs);
       return;
     }
+    setSubmitting(true);
 
     const now = nowISO();
     const saved: Activity = {

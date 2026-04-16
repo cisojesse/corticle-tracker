@@ -39,6 +39,7 @@ export function EngagementModal({
   const [isLead, setIsLead] = useState(engagement?.isLead ?? false);
   const [notes, setNotes] = useState(engagement?.notes ?? '');
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     function handleEsc(e: KeyboardEvent) {
@@ -77,17 +78,19 @@ export function EngagementModal({
     if (!investorCompanyId) errs.investorCompanyId = 'Investor firm is required';
     if (!ownerUserId) errs.ownerUserId = 'Owner is required';
     const size = Number(checkSize);
-    if (checkSize && (isNaN(size) || size < 0)) errs.checkSize = 'Must be a positive number';
+    if (checkSize && (isNaN(size) || !isFinite(size) || size < 0)) errs.checkSize = 'Must be a positive number';
     return errs;
   }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (submitting) return;
     const errs = validate();
     if (Object.keys(errs).length > 0) {
       setErrors(errs);
       return;
     }
+    setSubmitting(true);
 
     const now = nowISO();
     const saved: InvestorEngagement = {

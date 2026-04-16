@@ -71,6 +71,8 @@ export function useStorage() {
   const [syncStatus, setSyncStatus] = useState<'idle' | 'saving' | 'saved' | 'error' | 'no_file'>('no_file');
   const [error, setError] = useState<string | null>(null);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingSave = useRef<AppData | null>(null);
+  const isSaving = useRef(false);
 
   const readFile = useCallback(async (handle: FileSystemFileHandle): Promise<AppData> => {
     const file = await handle.getFile();
@@ -143,6 +145,14 @@ export function useStorage() {
       setSyncStatus('no_file');
       return;
     }
+
+    // Write lock: if a save is already in-flight, queue this one
+    if (isSaving.current) {
+      pendingSave.current = newData;
+      return;
+    }
+
+    isSaving.current = true;
     setSyncStatus('saving');
     try {
       const updated = { ...newData, lastSaved: new Date().toISOString() };
@@ -153,6 +163,14 @@ export function useStorage() {
     } catch {
       setSyncStatus('error');
       setError('Failed to save. Check file permissions.');
+    } finally {
+      isSaving.current = false;
+      // Drain queued save — always write the latest data
+      if (pendingSave.current) {
+        const queued = pendingSave.current;
+        pendingSave.current = null;
+        saveData(queued);
+      }
     }
   }, [fileHandle, writeFile]);
 

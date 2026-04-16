@@ -28,6 +28,7 @@ export function RoundModal({ round, onSave, onClose }: Props) {
   const [closedAt, setClosedAt] = useState(round?.closedAt ?? '');
   const [notes, setNotes] = useState(round?.notes ?? '');
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     function handleEsc(e: KeyboardEvent) {
@@ -41,19 +42,21 @@ export function RoundModal({ round, onSave, onClose }: Props) {
     const errs: Record<string, string> = {};
     if (!sanitizeShortText(name)) errs.name = 'Round name is required';
     const target = Number(targetAmount);
-    if (targetAmount && (isNaN(target) || target < 0)) errs.targetAmount = 'Must be a positive number';
+    if (targetAmount && (isNaN(target) || !isFinite(target) || target < 0)) errs.targetAmount = 'Must be a positive number';
     const raised = Number(raisedAmount);
-    if (raisedAmount && (isNaN(raised) || raised < 0)) errs.raisedAmount = 'Must be a positive number';
+    if (raisedAmount && (isNaN(raised) || !isFinite(raised) || raised < 0)) errs.raisedAmount = 'Must be a positive number';
     return errs;
   }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (submitting) return;
     const errs = validate();
     if (Object.keys(errs).length > 0) {
       setErrors(errs);
       return;
     }
+    setSubmitting(true);
 
     const now = nowISO();
     const saved: Round = {

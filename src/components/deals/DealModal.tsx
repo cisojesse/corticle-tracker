@@ -50,6 +50,7 @@ export function DealModal({
   const [playbookExpansion, setPlaybookExpansion] = useState(deal?.playbookExpansion ?? '');
   const [notes, setNotes] = useState(deal?.notes ?? '');
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     function handleEsc(e: KeyboardEvent) {
@@ -93,19 +94,21 @@ export function DealModal({
     if (!companyId) errs.companyId = 'Company is required';
     if (!ownerUserId) errs.ownerUserId = 'Owner is required';
     const size = Number(dealSize);
-    if (dealSize && (isNaN(size) || size < 0)) errs.dealSize = 'Must be a positive number';
+    if (dealSize && (isNaN(size) || !isFinite(size) || size < 0)) errs.dealSize = 'Must be a positive number';
     const prob = Number(probability);
-    if (probability && (isNaN(prob) || prob < 0 || prob > 100)) errs.probability = '0-100';
+    if (probability && (isNaN(prob) || !isFinite(prob) || prob < 0 || prob > 100)) errs.probability = '0-100';
     return errs;
   }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (submitting) return;
     const errs = validate();
     if (Object.keys(errs).length > 0) {
       setErrors(errs);
       return;
     }
+    setSubmitting(true);
 
     const now = nowISO();
     const saved: Deal = {

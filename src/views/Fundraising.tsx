@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useAuth } from '@/auth/AuthContext';
 import type { useStorage } from '@/hooks/useStorage';
 import type { Round, InvestorEngagement, InvestorStage, Company } from '@/types';
@@ -54,10 +54,11 @@ export default function Fundraising({ storage }: Props) {
   const activeRound = rounds.find(r => r.id === selectedRoundId) ?? rounds[0] ?? null;
 
   // Auto-select first round if none selected
-  if (!selectedRoundId && rounds.length > 0 && activeRound) {
-    // Will update on next render via state
-    setTimeout(() => setSelectedRoundId(activeRound.id), 0);
-  }
+  useEffect(() => {
+    if (!selectedRoundId && activeRound) {
+      setSelectedRoundId(activeRound.id);
+    }
+  }, [selectedRoundId, activeRound]);
 
   // Modals
   const [roundModal, setRoundModal] = useState<Round | null | undefined>(undefined);

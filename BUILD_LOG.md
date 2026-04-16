@@ -215,4 +215,74 @@ corticle-tracker/
 
 ---
 
-*Build completed 2026-04-14 by Claude Opus 4.6 (1M context)*
+*Initial build completed 2026-04-14 by Claude Opus 4.6 (1M context)*
+
+---
+
+## Phase 2a — Relational CRM + Federal GTM
+
+**Date range:** 2026-04-15 – 2026-04-16  
+**Builder:** Claude Opus 4.6 (1M context)  
+**Source plan:** `docs/PHASE_2A_BUILD_PLAN.md`
+
+### Sprint 1 — Relational Foundation (7 deliverables)
+
+| # | Deliverable | Commit | Key files | Security reviewed |
+|---|-------------|--------|-----------|-------------------|
+| 1.0 | User.email, admin password reset, calendar ORGANIZER | `e238f90` | types, UserModal, Admin, calendarHelpers | N/A (schema-only) |
+| 1.1 | Data model foundation (Company, Contact, Deal, Activity, Cadence, Round, InvestorEngagement) | `ccf76fb` | types/index.ts, useStorage.ts | N/A (schema-only) |
+| 1.2 | Companies CRUD + agency hierarchy | `0fe8a0b` | views/Companies.tsx, components/companies/* | N/A (prior session) |
+| 1.3 | Contacts CRUD + company picker | `52eb31f` | views/Contacts.tsx, components/contacts/* | N/A (prior session) |
+| 1.4 | Backfill wizard (admin-only, 3-step) | `1799d56` | views/Backfill.tsx, utils/contactParser.ts | YES — full review, 4 MEDIUM findings fixed (double-apply guard, stale closure, input sanitization, rawContact sanitization) |
+| 1.5 | Deals + Federal Kanban pipeline | `e1414ff` | views/Pipeline.tsx, components/deals/DealModal.tsx | Batch review (post-ship) |
+| 1.6 | Rounds + Investor pipeline | `7348f0a` | views/Fundraising.tsx, components/investors/* | Batch review (post-ship) |
+
+### Sprint 2 — Workflow Depth (in progress)
+
+| # | Deliverable | Commit | Key files | Security reviewed |
+|---|-------------|--------|-----------|-------------------|
+| 2.1 | Activity log + timeline + contact touch tracking | `35c80bd` | views/Activities.tsx, components/activities/ActivityModal.tsx | Batch review (post-ship) |
+| 2.2 | Cadence reminders on Dashboard | — | Pending | — |
+| 2.3 | Reports view (funnel + performance + aging) | — | Pending | — |
+
+### Phase 2a Architecture Decisions
+
+1. **Sub-deploy per deliverable** — each numbered deliverable gets its own commit + push + GitHub Pages auto-deploy. Review live before next starts.
+2. **Security review cadence** — formal review on 1.4 (most complex new pattern). Batch review on 1.5–2.1. Findings applied retroactively.
+3. **Sanitization pattern** — all user-editable fields pass through `sanitizeShortText` (200-char cap) or `sanitizeText` (2000-char cap) before persistence. React JSX escaping prevents XSS in rendering.
+4. **Stale-closure mitigation** — snapshot mutable data into local variables before mutation loops (established in 1.4 fix).
+5. **Double-submit guard** — `applying` state flag + disabled button pattern (established in 1.4 fix).
+
+### Phase 2a File Inventory (new files since initial build)
+
+```
+src/
+├── components/
+│   ├── activities/
+│   │   └── ActivityModal.tsx
+│   ├── companies/
+│   │   └── CompanyModal.tsx
+│   ├── contacts/
+│   │   └── ContactModal.tsx
+│   ├── deals/
+│   │   └── DealModal.tsx
+│   └── investors/
+│       ├── EngagementModal.tsx
+│       └── RoundModal.tsx
+├── utils/
+│   └── contactParser.ts
+└── views/
+    ├── Activities.tsx
+    ├── Backfill.tsx
+    ├── Companies.tsx
+    ├── Contacts.tsx
+    ├── Fundraising.tsx
+    └── Pipeline.tsx
+docs/
+├── PHASE_2A_BUILD_PLAN.md
+└── WORKFLOW_RESEARCH.md
+seeds/
+└── federal-gtm-seed.json
+```
+
+*Phase 2a Sprint 1 completed 2026-04-16. Sprint 2 in progress.*
